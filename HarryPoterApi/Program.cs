@@ -14,8 +14,13 @@ namespace HarryPotterApi
         static void Main(string[] args)
         {
             HarryPotterP HPI = new HarryPotterP();
-            HPI.HarryPApi(ApiConfig.BaseUri, "characters",ApiConfig.ApiKey);
+            HPI.HarryPApiArray("characters");
             
+            for(int i=0; i < HPI.Response.Headers.Count;i++)
+            {
+                Console.WriteLine(HPI.Response.Headers[i].ToString());
+            }
+            Console.Read();
         }
     }
     public static class ApiConfig
@@ -27,23 +32,34 @@ namespace HarryPotterApi
 
     public class HarryPotterP
     {
-        public JObject HarryPotterRespons { get; set; }
-
-        public JObject HarryPApi(string url, string requesting, string key)
+        public JObject HarryPotterResponsSingle { get; set; }
+        public JArray HarryPotterResponsArray { get; set; }
+        public IRestResponse Response { get; set; }
+        public void HarryPApiSingle(string requesting)
         {
-            string formaturl = url + requesting + key;
+            string formaturl = ApiConfig.BaseUri + requesting + ApiConfig.ApiKey;
             var request = new RestRequest();
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
             var client = new RestClient(formaturl);
-            IRestResponse response = client.Execute(request);
+            Response = client.Execute(request);
 
             //when i want to call all character list(when return, specify index of array)
-            //JArray jsonArray = JArray.Parse(response.Content);
+            //JArray jsonArray = JArray.Parse(Response.Content);
             //HarryPotterRespons = JObject.Parse(jsonArray[0].ToString());
 
-            HarryPotterRespons = JObject.Parse(response.Content);
+            HarryPotterResponsSingle = JObject.Parse(Response.Content);
 
-            return HarryPotterRespons;
+        }
+
+        public void HarryPApiArray(string requesting)
+        {
+            string formaturl = ApiConfig.BaseUri + requesting + ApiConfig.ApiKey;
+            var request = new RestRequest();
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            var client = new RestClient(formaturl);
+            Response = client.Execute(request);
+
+            HarryPotterResponsArray = JArray.Parse(Response.Content);
         }
 
     }
